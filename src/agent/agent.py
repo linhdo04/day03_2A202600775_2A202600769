@@ -165,6 +165,15 @@ QUY TẮC QUAN TRỌNG:
         try:
             return json.loads(match.group(1))
         except json.JSONDecodeError:
+            # Try to find and extract just the valid JSON object if there's trailing garbage
+            json_str = match.group(1)
+            # Find the last closing brace that creates valid JSON
+            for i in range(len(json_str) - 1, -1, -1):
+                if json_str[i] == '}':
+                    try:
+                        return json.loads(json_str[:i+1])
+                    except json.JSONDecodeError:
+                        continue
             return None
 
     def _execute_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
