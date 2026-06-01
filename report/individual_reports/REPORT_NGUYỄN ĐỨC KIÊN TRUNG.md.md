@@ -1,7 +1,7 @@
 # Individual Report: Lab 3 - Chatbot vs ReAct Agent
 
-- **Student Name**: [Nguyễn Đức Kiên Trung]
-- **Student ID**: [2A202600769]
+- **Student Name**: Nguyễn Đức Kiên Trung
+- **Student ID**: 2A202600769
 - **Date**: 2026-06-01
 
 ---
@@ -163,3 +163,4 @@ Thêm **Supervisor LLM** — một LLM thứ hai đánh giá action trước khi
 
 ### Performance
 Implement **tool result caching**: nếu cùng một tool với cùng tham số đã được gọi trong session, trả về kết quả cache thay vì gọi lại. Thêm **async tool execution** cho các tool độc lập để chạy song song, giảm latency.
+
