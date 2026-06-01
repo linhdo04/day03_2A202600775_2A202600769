@@ -33,7 +33,7 @@ class IndustryLogger:
             "event": event_type,
             "data": data
         }
-        self.logger.info(json.dumps(payload))
+        self.logger.info(json.dumps(payload, ensure_ascii=False))
 
     def info(self, msg: str):
         self.logger.info(msg)
