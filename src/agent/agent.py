@@ -153,28 +153,31 @@ QUY TẮC QUAN TRỌNG:
         return match.group(1).strip() if match else text.strip()
 
     def _parse_action(self, text: str) -> Optional[Dict]:
-        """
-        Extract JSON from 'Action: {...}', robust to markdown backticks.
-        Uses greedy match so nested braces (e.g. args dict) are captured correctly.
-        Bug fixed: non-greedy .*? stopped at the first } (inner dict), breaking parse.
-        """
+        """Extract JSON from 'Action: {...}', handles nested braces correctly."""
         cleaned = re.sub(r"```(?:json)?|```", "", text)
-        match = re.search(r"Action:\s*(\{.*\})", cleaned, re.DOTALL)
-        if not match:
+        m = re.search(r"Action:\s*(\{)", cleaned)
+        if not m:
             return None
-        try:
-            return json.loads(match.group(1))
-        except json.JSONDecodeError:
-            # Try to find and extract just the valid JSON object if there's trailing garbage
-            json_str = match.group(1)
-            # Find the last closing brace that creates valid JSON
-            for i in range(len(json_str) - 1, -1, -1):
-                if json_str[i] == '}':
-                    try:
-                        return json.loads(json_str[:i+1])
-                    except json.JSONDecodeError:
-                        continue
-            return None
+        start = m.start(1)
+        depth, in_str, esc = 0, False, False
+        for i, c in enumerate(cleaned[start:], start):
+            if esc:
+                esc = False; continue
+            if c == "\\" and in_str:
+                esc = True; continue
+            if c == '"':
+                in_str = not in_str; continue
+            if not in_str:
+                if c == "{":
+                    depth += 1
+                elif c == "}":
+                    depth -= 1
+                    if depth == 0:
+                        try:
+                            return json.loads(cleaned[start : i + 1])
+                        except json.JSONDecodeError:
+                            return None
+        return None
 
     def _execute_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
         for tool in self.tools:
