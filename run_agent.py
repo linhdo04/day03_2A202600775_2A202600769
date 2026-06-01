@@ -21,11 +21,7 @@ from src.core.provider_factory import create_provider
 from src.agent.agent import ReActAgent
 from src.telemetry.metrics import tracker
 
-# ── TODO (Person B) ───────────────────────────────────────────────────────────
-# Uncomment the line below after Person B implements src/tools/hr_tools.py
-# from src.tools.hr_tools import TOOLS
-TOOLS = []  # Replace with Person B's tools
-# ─────────────────────────────────────────────────────────────────────────────
+from src.tools.hr_tools import TOOLS
 
 # Same queries as chatbot.py — run both scripts to compare results
 TEST_CASES = [
