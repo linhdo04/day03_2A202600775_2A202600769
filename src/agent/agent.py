@@ -21,35 +21,45 @@ class ReActAgent:
         self.tools = tools
         self.max_steps = max_steps
 
-    # ── System Prompt (v1) ────────────────────────────────────────────────────
+    # ── System Prompt (v2 — Person B improvement) ────────────────────────────
+    # Cải tiến so với v1:
+    # - Thêm ví dụ cụ thể để tránh hallucinate tên tool sai
+    # - Nhấn mạnh tên tool chính xác (v1 hay gọi sai: get_employee_info_by_id)
+    # - Thêm hướng dẫn xử lý khi tool trả về lỗi
 
     def get_system_prompt(self) -> str:
         tool_docs = "\n".join(
             f"  - {t['name']}: {t['description']}" for t in self.tools
         )
         tool_names = [t["name"] for t in self.tools]
+        example_tool = tool_names[0] if tool_names else "ten_cong_cu"
         return f"""Bạn là trợ lý quản lý nhân sự (HR Assistant) thông minh của một công ty Việt Nam.
-Trả lời bằng ngôn ngữ người dùng dùng (tiếng Việt hoặc tiếng Anh).
+Trả lời bằng tiếng Việt.
 
-Bạn có thể sử dụng các công cụ sau:
+CÔNG CỤ CÓ SẴN (chỉ dùng đúng tên bên dưới, không được tự đặt tên khác):
 {tool_docs}
 
-Hãy làm theo định dạng CHÍNH XÁC sau đây ở mỗi bước:
+ĐỊNH DẠNG BẮT BUỘC — làm theo từng bước:
 
-Thought: <lý do / suy nghĩ của bạn>
-Action: {{"tool": "<tên_công_cụ>", "args": {{<tham_số>}}}}
+Thought: <phân tích yêu cầu, quyết định dùng tool nào tiếp theo>
+Action: {{"tool": "<tên_tool_chính_xác>", "args": {{<tham_số>}}}}
 
-Sau khi nhận được Observation, tiếp tục với Thought tiếp theo hoặc kết luận:
+Ví dụ đúng:
+Action: {{"tool": "{example_tool}", "args": {{"employee_id": "EMP001"}}}}
 
-Final Answer: <câu trả lời đầy đủ cho người dùng>
+Sau khi có Observation, tiếp tục:
+Thought: <phân tích kết quả, quyết định bước tiếp>
+Action: ... (hoặc Final Answer nếu đã đủ thông tin)
 
-QUY TẮC:
-1. Luôn bắt đầu bằng Thought.
-2. Viết Action dưới dạng JSON thuần (không dùng markdown, không thêm ký tự thừa).
-3. Tên công cụ phải là một trong: {tool_names}
-4. KHÔNG tự viết "Observation:" — hệ thống sẽ cung cấp.
-5. Mỗi lượt chỉ được ra một Action HOẶC một Final Answer.
-6. Nếu công cụ trả về lỗi, hãy suy nghĩ và thử cách khác.
+Final Answer: <câu trả lời đầy đủ, rõ ràng cho người dùng>
+
+QUY TẮC QUAN TRỌNG:
+1. Tên tool phải là MỘT TRONG: {tool_names} — không được viết sai hoặc tự tạo tên mới.
+2. Action phải là JSON thuần — KHÔNG dùng markdown (```), KHÔNG thêm text thừa.
+3. KHÔNG tự viết "Observation:" — hệ thống cung cấp sau mỗi Action.
+4. Mỗi lượt chỉ một Action HOẶC một Final Answer, không được cả hai.
+5. Nếu tool báo lỗi → đọc thông báo lỗi, điều chỉnh tham số và thử lại.
+6. Khi đã đủ thông tin → viết Final Answer tổng hợp đầy đủ.
 """
 
     # ── Main ReAct Loop ───────────────────────────────────────────────────────
