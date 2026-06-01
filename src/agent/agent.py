@@ -143,9 +143,13 @@ QUY TẮC:
         return match.group(1).strip() if match else text.strip()
 
     def _parse_action(self, text: str) -> Optional[Dict]:
-        """Extract JSON from 'Action: {...}', robust to markdown backticks."""
+        """
+        Extract JSON from 'Action: {...}', robust to markdown backticks.
+        Uses greedy match so nested braces (e.g. args dict) are captured correctly.
+        Bug fixed: non-greedy .*? stopped at the first } (inner dict), breaking parse.
+        """
         cleaned = re.sub(r"```(?:json)?|```", "", text)
-        match = re.search(r"Action:\s*(\{.*?\})", cleaned, re.DOTALL)
+        match = re.search(r"Action:\s*(\{.*\})", cleaned, re.DOTALL)
         if not match:
             return None
         try:
