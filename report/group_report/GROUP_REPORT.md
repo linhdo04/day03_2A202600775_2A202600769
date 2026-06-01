@@ -1,6 +1,6 @@
 # Group Report: Lab 3 - Production-Grade Agentic System
 
-- **Team Name**: Team 5 Zone A
+- **Team Name**: Team 5 Zone B
 - **Team Members**: Nguyễn Đức Kiên Trung (2A202600769), Đỗ Thiện Lĩnh (2A202600775)
 - **Deployment Date**: 2026-06-01
 
