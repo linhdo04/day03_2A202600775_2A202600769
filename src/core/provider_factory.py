@@ -30,6 +30,6 @@ def create_provider() -> LLMProvider:
     else:
         raise ValueError(
             f"Unknown provider '{provider_name}'. "
-            "Set DEFAULT_PROVIDER to 'google', 'openai', or 'local' in your .env file."
+            "Set DEFAULT_PROVIDER to 'google', 'openai', or 'local'"
         )
-        
+
